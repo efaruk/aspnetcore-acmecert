@@ -37,7 +37,7 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '6.0.x'
-        cache: true
+        #cache: true
     - name: Set Build Configuration to Debug
       run: |
         echo "BUILD_CONFIGURATION=Debug" >> $GITHUB_ENV
