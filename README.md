@@ -1,2 +1,2 @@
-# aspnetcore-acmecert
-Add remove acme acquired ssl certs to Kestrel at run-time
+# Kestressl
+Add, remove automatically acquired ACME Ssl certificates to Kestrel at run-time. Host your own white-labeling SaaS web application...

@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net6.0;</TargetFrameworks>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <Authors>Certes Contributors</Authors>
+        <Company />
+        <Product>Kestressl</Product>
+        <Title>$(Product)</Title>
+        <Description>Add, remove automatically acquired ACME Ssl certificates to Kestrel at run-time. Host your own white-labeling SaaS web application...</Description>
+        <PackageTags>Certes;letsencrypt;ACME;HTTPS;SSL;Certificate;Kestrel</PackageTags>
+        <PackageProjectUrl>https://github.com/efaruk/kestressl</PackageProjectUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://github.com/efaruk/kestressl</RepositoryUrl>
+        <PackageIcon>../assets/logo.png</PackageIcon>
+    </PropertyGroup>
+</Project>

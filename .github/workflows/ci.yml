@@ -1,0 +1,45 @@
+name: Kestressl CI
+
+on:
+  workflow_dispatch:
+    branches: 
+      - '*'         # matches every branch that doesn't contain a '/'
+      - '*/*'       # matches every branch containing a single '/'
+      - '**'        # matches every branch
+      - '!development'   # exclude dev
+      - '!test'   # exclude test
+      - '!main'   # exclude main
+  push:
+    branches: 
+      - '*'         # matches every branch that doesn't contain a '/'
+      - '*/*'       # matches every branch containing a single '/'
+      - '**'        # matches every branch
+      - '!development'   # exclude dev
+      - '!test'   # exclude test
+      - '!main'   # exclude main
+
+# disabling pull request CI since each push will invoke the CI
+#  pull_request:
+#    branches: [ main, development ]
+
+env:
+  NUGET_AUTH_TOKEN: ${{ secrets.NUGET_TOKEN }}  
+
+jobs:
+  build:
+    runs-on: [ self-hosted, linux ]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '6.0'
+        cache: true
+    - name: Set Build Configuration to Debug
+      run: |
+        echo "BUILD_CONFIGURATION=Debug" >> $GITHUB_ENV
+    - name: Build & Test
+      shell: bash
+      run: |
+        dotnet build kestressl-all.sln -c ${{ env.BUILD_CONFIGURATION }}
+        dotnet test kestressl-all.sln --no-build --no-restore --verbosity normal

@@ -1,0 +1,100 @@
+name: Kestressl Test and Staging
+
+on:
+  workflow_dispatch:
+    branches: [ development, test ]
+  push:
+    branches: [ development, test ]
+
+env:
+  NUGET_AUTH_TOKEN: ${{ secrets.NUGET_TOKEN }}
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+#  DOCKER_REGISTRY_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+#  DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+#  DOCKER_REGISTRY: cloud.canister.io:5000
+#  DOCKER_REGISTRY_NAMESPACE: cloud.canister.io:5000/efaruk
+#  IMAGE_NAME: kestressl
+
+jobs:
+  build:
+    runs-on: [ self-hosted, linux ]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '6.0'
+        cache: true
+    - name: Set Build Configuration to Debug and Branch to development
+      if: endsWith(github.ref, '/development')
+      run: |
+        echo "BUILD_CONFIGURATION=Debug" >> $GITHUB_ENV
+        echo "BRANCH=development" >> $GITHUB_ENV
+    - name: Set Build Configuration to Debug and Branch to test
+      if: endsWith(github.ref, '/test')
+      run: |
+        echo "BUILD_CONFIGURATION=Release" >> $GITHUB_ENV
+        echo "BRANCH=test" >> $GITHUB_ENV
+    - name: Build & Test & Publish
+      shell: bash
+      run: |
+        cd src/Kestressl.Website.Server
+        libman restore 
+        cd ../..
+        dotnet restore kestressl-all.sln
+        dotnet build kestressl-all.sln -c ${{ env.BUILD_CONFIGURATION }}
+        dotnet test kestressl-all.sln --no-build --no-restore --verbosity normal
+        dotnet nuget push */bin/Release/*.nupkg -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json
+        #if [[ ${{ env.BRANCH }} == test ]] || [[ ${{ env.BRANCH }} == development ]]; then
+        #  dotnet publish ./src/Kestressl.Website.Server/Kestressl.Website.Server.csproj -c ${{ env.BUILD_CONFIGURATION }} --verbosity minimal -o ./docker/publish
+        #  cd docker
+        #  docker login --username=$DOCKER_REGISTRY_USERNAME --password=$DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY
+        #  docker build -f Dockerfile-non-prod -t $IMAGE_NAME .
+        #  docker tag $IMAGE_NAME $DOCKER_REGISTRY_NAMESPACE/$IMAGE_NAME:$GITHUB_RUN_NUMBER
+        #  #docker tag $IMAGE_NAME $DOCKER_REGISTRY_NAMESPACE/$IMAGE_NAME:latest
+        #  #docker push $DOCKER_REGISTRY_NAMESPACE/$IMAGE_NAME:$GITHUB_RUN_NUMBER
+        #  rm -rf ./publish &>/dev/null || true
+        #fi
+
+  #deploy:
+  #  runs-on: [ self-hosted, linux, zamurai, dev ]
+  #  needs: build
+  #  steps:
+  #    - name: Set env to Development
+  #      if: endsWith(github.ref, '/development')
+  #      run: |
+  #        echo "BUILD_CONFIGURATION=Debug" >> $GITHUB_ENV
+  #        echo "BRANCH=development" >> $GITHUB_ENV
+  #        echo "DOTNET_ENVIRONMENT=Development" >> $GITHUB_ENV
+  #        echo "CONTAINER_NAME=kestressl-dev" >> $GITHUB_ENV
+  #        echo "VIRTUAL_HOST=dev.kestressl.org" >> $GITHUB_ENV
+  #        echo "LETSENCRYPT_HOST=dev.kestressl.org" >> $GITHUB_ENV
+  #    - name: Set env to Test
+  #      if: endsWith(github.ref, '/test')
+  #      run: |
+  #        echo "BUILD_CONFIGURATION=Debug" >> $GITHUB_ENV
+  #        echo "BRANCH=test" >> $GITHUB_ENV
+  #        echo "DOTNET_ENVIRONMENT=Test" >> $GITHUB_ENV
+  #        echo "CONTAINER_NAME=kestressl-test" >> $GITHUB_ENV
+  #        echo "VIRTUAL_HOST=test.kestressl.org" >> $GITHUB_ENV
+  #        echo "LETSENCRYPT_HOST=test.kestressl.org" >> $GITHUB_ENV
+  #    - name: Deploy Docker Image
+  #      shell: bash
+  #      run: |
+  #        echo "Deploying Container: ${{ env.CONTAINER_NAME }}"
+  #        #docker pull $DOCKER_REGISTRY_NAMESPACE/$IMAGE_NAME:$GITHUB_RUN_NUMBER
+  #        docker stop -t 60 ${{ env.CONTAINER_NAME }} &>/dev/null || true
+  #        docker rm -f ${{ env.CONTAINER_NAME }} &>/dev/null || true
+  #        docker rmi -f $DOCKER_REGISTRY_NAMESPACE/$IMAGE_NAME &>/dev/null || true
+  #        docker run -v ${{ env.CONTAINER_NAME }}_storage:/app/storage --name ${{ env.CONTAINER_NAME }} --restart=unless-stopped -d \
+  #          -e "DOTNET_ENVIRONMENT=${{ env.DOTNET_ENVIRONMENT }}" \
+  #          -e "VIRTUAL_HOST=${{ env.VIRTUAL_HOST }}" \
+  #          -e "LETSENCRYPT_HOST=${{ env.LETSENCRYPT_HOST }}" \
+  #          $DOCKER_REGISTRY_NAMESPACE/$IMAGE_NAME:$GITHUB_RUN_NUMBER
+  #    - name: Notify Telegram
+  #      uses: appleboy/telegram-action@master
+  #      with:
+  #        to: ${{ secrets.TELEGRAM_TO }}
+  #        token: ${{ secrets.TELEGRAM_TOKEN }}
+  #        message: "Test environment has been updated: https://dev.kestressl.org/"
