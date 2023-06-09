@@ -23,17 +23,20 @@ on:
 #    branches: [ main, development ]
 
 env:
-  NUGET_AUTH_TOKEN: ${{ secrets.NUGET_TOKEN }}  
+  NUGET_AUTH_TOKEN: ${{ secrets.NUGET_TOKEN }}
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
 
 jobs:
   build:
-    runs-on: [ self-hosted, linux ]
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '6.0'
+        dotnet-version: '6.0.x'
         cache: true
     - name: Set Build Configuration to Debug
       run: |
