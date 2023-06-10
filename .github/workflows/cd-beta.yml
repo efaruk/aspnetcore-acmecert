@@ -1,20 +1,26 @@
-name: Kestressl Test and Staging
+name: Kestressl Beta Release
 
 on:
   workflow_dispatch:
-    branches: [ development, test ]
+    branches:
+      - 'beta/*'
   push:
-    branches: [ development, test ]
+    branches:
+      - 'beta/*'
 
 env:
   NUGET_AUTH_TOKEN: ${{ secrets.NUGET_TOKEN }}
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
-#  DOCKER_REGISTRY_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
-#  DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
-#  DOCKER_REGISTRY: cloud.canister.io:5000
-#  DOCKER_REGISTRY_NAMESPACE: cloud.canister.io:5000/efaruk
-#  IMAGE_NAME: kestressl
+  #DOCKER_REGISTRY_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+  #DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+  #DOCKER_REGISTRY: cloud.canister.io:5000
+  #DOCKER_REGISTRY_NAMESPACE: cloud.canister.io:5000/efaruk
+  #IMAGE_NAME: kestressl
+  #CONTAINER_NAME: kestressl
+  ##HOST_PORT: 80
+  #VIRTUAL_HOST: "kestressl.org, test.kestressl.org"
+  #LETSENCRYPT_HOST: "kestressl.org, test.kestressl.org"
 
 jobs:
   build:
@@ -45,7 +51,8 @@ jobs:
         dotnet restore kestressl-all.sln
         dotnet build kestressl-all.sln -c ${{ env.BUILD_CONFIGURATION }}
         dotnet test kestressl-all.sln --no-build --no-restore --verbosity normal
-        dotnet nuget push */bin/Release/*.nupkg -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json
+        dotnet pack --no-restore --no-build --configuration Release ./src/Kestressl/Kestressl.csproj
+        dotnet nuget push ./src/Kestressl/bin/Release/*.nupkg -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json
         #if [[ ${{ env.BRANCH }} == test ]] || [[ ${{ env.BRANCH }} == development ]]; then
         #  dotnet publish ./src/Kestressl.Website.Server/Kestressl.Website.Server.csproj -c ${{ env.BUILD_CONFIGURATION }} --verbosity minimal -o ./docker/publish
         #  cd docker
@@ -58,7 +65,7 @@ jobs:
         #fi
 
   #deploy:
-  #  runs-on: [ self-hosted, linux, zamurai, dev ]
+  #  runs-on: [ self-hosted, linux, kestressl, test ]
   #  needs: build
   #  steps:
   #    - name: Set env to Development
@@ -97,4 +104,4 @@ jobs:
   #      with:
   #        to: ${{ secrets.TELEGRAM_TO }}
   #        token: ${{ secrets.TELEGRAM_TOKEN }}
-  #        message: "Test environment has been updated: https://dev.kestressl.org/"
+  #        message: "Test environment has been updated: https://test.kestressl.org/"

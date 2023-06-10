@@ -9,11 +9,12 @@
         <Product>Kestressl</Product>
         <Title>$(Product)</Title>
         <Description>Add, remove automatically acquired ACME Ssl certificates to Kestrel at run-time. Host your own white-labeling SaaS web application...</Description>
-        <PackageTags>Certes;letsencrypt;ACME;HTTPS;SSL;Certificate;Kestrel</PackageTags>
+        <PackageTags>aspnetcore;Kestrel;letsencrypt;ACME;HTTPS;SSL;Certificate</PackageTags>
         <PackageProjectUrl>https://github.com/efaruk/kestressl</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/efaruk/kestressl</RepositoryUrl>
         <PackageIcon>../assets/logo.png</PackageIcon>
+        <PackageVersion>1.0-beta</PackageVersion>
     </PropertyGroup>
 </Project>

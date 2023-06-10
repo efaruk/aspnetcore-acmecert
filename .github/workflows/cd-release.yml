@@ -43,7 +43,8 @@ jobs:
         dotnet restore kestressl-all.sln
         dotnet build kestressl-all.sln -c ${{ env.BUILD_CONFIGURATION }}
         dotnet test kestressl-all.sln --no-build --no-restore --verbosity normal
-        dotnet nuget push */bin/Release/*.nupkg -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json
+        dotnet pack --configuration Release ./src/Kestressl/Kestressl.csproj --no-build --no-restore --verbosity normal
+        dotnet nuget push ./src/Kestressl/bin/Release/*.nupkg -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json
         #if [[ ${{ env.BRANCH }} == main ]] || [[ ${{ env.BRANCH }} == development ]]; then
         #  dotnet publish ./src/Kestressl.Website.Server/Kestressl.Website.Server.csproj -c ${{ env.BUILD_CONFIGURATION }} --verbosity minimal -o ./docker/publish
         #  cd docker

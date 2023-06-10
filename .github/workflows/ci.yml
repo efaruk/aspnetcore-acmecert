@@ -1,4 +1,4 @@
-name: Kestressl CI
+name: Kestressl CI - Build & Test
 
 on:
   workflow_dispatch:
@@ -9,6 +9,8 @@ on:
       - '!development'   # exclude dev
       - '!test'   # exclude test
       - '!main'   # exclude main
+      - '!release'   # exclude release
+
   push:
     branches: 
       - '*'         # matches every branch that doesn't contain a '/'
@@ -17,6 +19,7 @@ on:
       - '!development'   # exclude dev
       - '!test'   # exclude test
       - '!main'   # exclude main
+      - '!release'   # exclude release
 
 # disabling pull request CI since each push will invoke the CI
 #  pull_request:
